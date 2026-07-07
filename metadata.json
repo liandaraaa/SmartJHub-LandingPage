@@ -1,0 +1,7 @@
+{
+  "name": "Smart Jelantah - AI Oil Quality Test Simulator",
+  "description": "Simulasi interaktif pengujian kualitas minyak jelantah menggunakan AI Computer Vision dan Gemini SDK.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
