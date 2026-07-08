@@ -48,10 +48,12 @@ export default function OilTestSimulator({ showToast }: OilTestSimulatorProps) {
       });
 
       if (!response.ok) {
+        console.log("Gemini AI server returned an error:", response.status, response.statusText);
         throw new Error('Gagal terhubung ke server AI');
       }
 
       const data = await response.json();
+      console.log("Gemini AI analysis result:", data);
       setResult(data);
 
       // Append interaction to chat log

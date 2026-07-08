@@ -240,6 +240,7 @@ Format output harus JSON:
       }
 
       if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY") {
+        console.log("Gemini API Key not set. Using fallback mock response for oil analysis.");
         // Fallback mock response for analysis if Gemini API key not present
         const g = presetColor === "black" ? "Grade C" : presetColor === "brown" ? "Grade B" : "Grade A";
         const rate = g === "Grade A" ? 1000 : g === "Grade B" ? 750 : 500;
@@ -292,8 +293,9 @@ Format output harus JSON:
           }
         });
       } catch (err1: any) {
-        console.warn("gemini-2.5-flash failed, trying gemini-1.5-flash...", err1?.message);
+        console.log("gemini-2.5-flash failed, trying gemini-1.5-flash...", err1?.message);
         try {
+          console.log("Retrying with gemini-1.5-flash model for oil analysis...");
           modelUsed = "gemini-1.5-flash";
           response = await ai.models.generateContent({
             model: "gemini-1.5-flash",
@@ -316,7 +318,7 @@ Format output harus JSON:
             }
           });
         } catch (err2: any) {
-          console.warn("gemini-1.5-flash failed as well. Using smart fallback analysis.", err2?.message);
+          console.log("gemini-1.5-flash failed as well. Using smart fallback analysis.", err2?.message);
           // Graceful fallback response instead of 503
           const g = presetColor === "black" ? "Grade C" : presetColor === "brown" ? "Grade B" : "Grade A";
           const volNum = volume || 1.5;
@@ -336,9 +338,10 @@ Format output harus JSON:
 
       const resultText = response.text ? response.text.trim() : "{}";
       const resultJson = JSON.parse(resultText);
+      console.log(`Gemini AI analysis result (model: ${modelUsed}):`, resultJson);
       res.json(resultJson);
     } catch (error: any) {
-      console.error("Error analyzing cooking oil:", error);
+      console.log("Error analyzing cooking oil:", error);
       // Graceful fallback response on any unexpected error so user never gets 503
       const g = "Grade A";
       const volNum = 1.5;
