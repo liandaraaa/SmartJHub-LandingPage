@@ -217,15 +217,21 @@ Format output harus JSON:
         });
       }
 
-      const contents: any[] = [];
+      let requestContents: any;
       if (imagePart) {
-        contents.push(imagePart);
+        requestContents = {
+          parts: [
+            imagePart,
+            { text: promptText }
+          ]
+        };
+      } else {
+        requestContents = promptText;
       }
-      contents.push({ text: promptText });
 
       const response = await ai.models.generateContent({
         model: "gemini-3.5-flash",
-        contents: contents,
+        contents: requestContents,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
