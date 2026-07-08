@@ -109,28 +109,68 @@ Pastikan bahasa yang digunakan adalah Bahasa Indonesia yang ramah, profesional, 
         });
       }
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: [
-          { text: prdContext },
-          { text: prompt }
-        ],
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              hook: { type: Type.STRING },
-              highlights: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
+      let response;
+      try {
+        response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [
+            { text: prdContext },
+            { text: prompt }
+          ],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                hook: { type: Type.STRING },
+                highlights: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING }
+                },
+                callToAction: { type: Type.STRING }
               },
-              callToAction: { type: Type.STRING }
-            },
-            required: ["hook", "highlights", "callToAction"]
+              required: ["hook", "highlights", "callToAction"]
+            }
           }
+        });
+      } catch (err1: any) {
+        console.warn("gemini-2.5-flash failed in /api/summarize, trying gemini-1.5-flash...", err1?.message);
+        try {
+          response = await ai.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: [
+              { text: prdContext },
+              { text: prompt }
+            ],
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  hook: { type: Type.STRING },
+                  highlights: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                  },
+                  callToAction: { type: Type.STRING }
+                },
+                required: ["hook", "highlights", "callToAction"]
+              }
+            }
+          });
+        } catch (err2: any) {
+          console.warn("gemini-1.5-flash also failed in /api/summarize. Using fallback response.", err2?.message);
+          return res.json({
+            hook: `Selamatkan Lingkungan, Raih Cuan Maksimal dengan Smart Jelantah Hub! (AI Fallback)`,
+            highlights: [
+              `Gunakan wadah Smart J-Pot berperekat skala transparan dengan penyaring mikro ganda terintegrasi untuk menyaring sisa kotoran dapur.`,
+              `Dapatkan poin kompetitif hingga Rp 10.000 per liter untuk Grade A yang langsung cair ke e-wallet atau donasi sosial.`,
+              `Akses resep saponifikasi otomatis instan untuk mendaur ulang minyak jelantah menjadi sabun dan lilin ramah lingkungan di rumah.`
+            ],
+            callToAction: `Mulai setor minyak jelantah Anda hari ini dan jadilah bagian dari gerakan hijau berkelanjutan!`
+          });
         }
-      });
+      }
 
       const resultText = response.text ? response.text.trim() : "{}";
       const resultJson = JSON.parse(resultText);
