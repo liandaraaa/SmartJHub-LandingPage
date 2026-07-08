@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import { tr } from "motion/react-client";
 
 dotenv.config();
 
@@ -24,7 +25,12 @@ app.use(express.json({ limit: '10mb' }));
 
 // API Routes
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+  try {
+    res.json({ status: "ok" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
   // End point: Summarize features automatically for persona
@@ -253,7 +259,8 @@ Format output harus JSON:
           colorDescription: g === "Grade A" ? "Kuning Jernih, Remahan Minim (Demo)" : g === "Grade B" ? "Cokelat Transparan, Sisa Gorengan (Demo)" : "Hitam Pekat, Bekas Penggunaan Berulang (Demo)",
           points: `${pts}`,
           equivalentRupiah: `Rp ${(pts * 10).toLocaleString('id-ID')}`,
-          soapFormula: `[AI Saponifikasi Formula - Demo]: Campurkan ${vol} Liter minyak jelantah saringan ganda Anda dengan 180g NaOH (Lye) dan 450ml air suling. Tambahkan minyak atsiri jeruk nipis untuk aroma segar.`
+          soapFormula: `[AI Saponifikasi Formula - Demo]: Campurkan ${vol} Liter minyak jelantah saringan ganda Anda dengan 180g NaOH (Lye) dan 450ml air suling. Tambahkan minyak atsiri jeruk nipis untuk aroma segar.`,
+          modelUsed: "Fallback No api Key"
         });
       }
 
@@ -272,6 +279,7 @@ Format output harus JSON:
       let response;
       let modelUsed = "gemini-2.5-flash";
       try {
+        console.log("Sending request to Gemini AI for oil analysis using model:", modelUsed);
         response = await ai.models.generateContent({
           model: "gemini-2.5-flash",
           contents: requestContents,
@@ -286,9 +294,10 @@ Format output harus JSON:
                 colorDescription: { type: Type.STRING },
                 points: { type: Type.STRING },
                 equivalentRupiah: { type: Type.STRING },
-                soapFormula: { type: Type.STRING }
+                soapFormula: { type: Type.STRING },
+                modelUsed: { type: Type.STRING }
               },
-              required: ["grade", "confidence", "volume", "colorDescription", "points", "equivalentRupiah", "soapFormula"]
+              required: ["grade", "confidence", "volume", "colorDescription", "points", "equivalentRupiah", "soapFormula", "modelUsed"]
             }
           }
         });
@@ -311,7 +320,8 @@ Format output harus JSON:
                   colorDescription: { type: Type.STRING },
                   points: { type: Type.STRING },
                   equivalentRupiah: { type: Type.STRING },
-                  soapFormula: { type: Type.STRING }
+                  soapFormula: { type: Type.STRING },
+                modelUsed: { type: Type.STRING }
                 },
                 required: ["grade", "confidence", "volume", "colorDescription", "points", "equivalentRupiah", "soapFormula"]
               }
@@ -331,7 +341,8 @@ Format output harus JSON:
             colorDescription: imagePart ? "Analisis Foto Komputer Vision: Sampel minyak terdeteksi jernih dengan saringan mikro aktif." : (g === "Grade A" ? "Kuning Jernih, Remahan Makanan Terfiltrasi" : g === "Grade B" ? "Cokelat Transparan, Bekas Lauk" : "Hitam Pekat, Residu Gorengan Berulang"),
             points: `${pts}`,
             equivalentRupiah: `Rp ${(pts * 10).toLocaleString('id-ID')}`,
-            soapFormula: `Formula Saponifikasi AI: Campurkan ${volNum} Liter minyak dengan ${(volNum * 150).toFixed(0)}g NaOH (Lye) dan ${(volNum * 350).toFixed(0)}ml air murni untuk hasil 10 batang sabun ramah lingkungan.`
+            soapFormula: `Formula Saponifikasi AI: Campurkan ${volNum} Liter minyak dengan ${(volNum * 150).toFixed(0)}g NaOH (Lye) dan ${(volNum * 350).toFixed(0)}ml air murni untuk hasil 10 batang sabun ramah lingkungan.`,
+            modelUsed: "Fallback"
           });
         }
       }

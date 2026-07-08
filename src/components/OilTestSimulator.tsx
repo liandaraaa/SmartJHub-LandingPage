@@ -21,7 +21,8 @@ export default function OilTestSimulator({ showToast }: OilTestSimulatorProps) {
     colorDescription: "Kuning Jernih, Remahan Makanan Terfiltrasi Sempurna dengan Saringan Mikro",
     points: "1500",
     equivalentRupiah: "Rp 15.000",
-    soapFormula: "Dengan volume 1.5 Liter minyak Grade A ini, campurkan dengan 225g Lye (NaOH), 500ml air murni, dan 20ml minyak atsiri lavender untuk menghasilkan 12 batang sabun cuci tangan organik yang lembut di kulit."
+    soapFormula: "Dengan volume 1.5 Liter minyak Grade A ini, campurkan dengan 225g Lye (NaOH), 500ml air murni, dan 20ml minyak atsiri lavender untuk menghasilkan 12 batang sabun cuci tangan organik yang lembut di kulit.",
+    modelUsed: "gemini-2.5-flash"
   });
 
   const [aiChatLogs, setAiChatLogs] = useState<Array<{ sender: 'user' | 'gemini'; text: string }>>([
